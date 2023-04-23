@@ -1,0 +1,17 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Загрузить файл</title>
+    <meta charset="UTF=8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta nema="viewport" content="width=device-width, initial-scale=1.0">
+  </head>
+  <body>
+    <h1>Загрузить файл</h1>
+    <form accept="/upload" method="POST" enctype="multipart/form-data">
+        {{form.hidden_tag()}}
+        {{form.file()}}
+        {{form.submit()}}
+    </form>
+  </body>
+</html>

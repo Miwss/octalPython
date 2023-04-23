@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Profile</title>
+    <style>
+        form {
+            display: inline-block;
+        }
+        input[type="submit"] {
+            display: inline-block;
+            margin-right: 10px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Profile {{ username }}</h1>
+    <form method="post">
+        <input type="submit" name="add_file" value="Add File" formaction="/upload">
+    </form>
+    <form action="GET"><input type="submit" name="list_files" value="List Files" formaction="/allFile"></form>
+    <form method="GET" action="/logout">
+        <input type="submit" value="Logout">
+    </form>
+</body>
+</html>

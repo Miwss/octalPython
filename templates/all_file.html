@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>List Files</title>
+</head>
+<body>
+    <h1>List of Files</h1>
+    <ul>
+    {% for file in files %}
+        <li>
+            <a href="{{ url_for('download', filename=file) }}" download="{{ file }}">{{ file }}</a>
+            <button class="comment-btn" data-filename="{{ file }}" onclick="toggleComments(this)">Comment</button>
+            <button class="hide-btn" data-filename="{{ file }}" style="display: none;" onclick="toggleComments(this)">Hide comments</button>
+            <ul class="comments" data-filename="{{ file }}"></ul>
+        </li>
+    {% endfor %}
+    </ul>
+
+    <form id="comment-form" style="display:none;">
+        <input type="text" id="comment-name" placeholder="Your Name" name="user_name">
+        <textarea id="comment-text" placeholder="Your Comment" name="comment"></textarea>
+        <input type="hidden" id="comment-file" name="file_name" value="">
+        <input type="hidden" id="comment-filename" name="filename" value="">
+        <button type="submit">Submit Comment</button>
+    </form>
+    
+    <script>
+        var commentForm = document.getElementById('comment-form');
+        var commentName = document.getElementById('comment-name');
+        var commentText = document.getElementById('comment-text');
+        var commentFile = document.getElementById('comment-file');
+        var commentButtons = document.querySelectorAll('.comment-btn');
+        var hideButtons = document.querySelectorAll('.hide-btn');
+
+        commentButtons.forEach(function(button) {
+            button.addEventListener('click', function(e) {
+                var filename = this.getAttribute('data-filename');
+                commentFile.value = filename;
+                commentForm.style.display = 'block';
+                commentName.focus();
+                this.style.display = 'none';
+                document.querySelector('.hide-btn[data-filename="' + filename + '"]').style.display = 'block';
+                var commentsList = document.querySelector('ul[data-filename="' + filename + '"]');
+                commentsList.style.display = 'block';
+                xhrGetComments(filename, commentsList);
+            });
+        });
+
+        hideButtons.forEach(function(button) {
+            button.addEventListener('click', function(e) {
+                var filename = this.getAttribute('data-filename');
+                this.style.display = 'none';
+                document.querySelector('.comment-btn[data-filename="' + filename + '"]').style.display = 'block';
+                var commentsList = document.querySelector('ul[data-filename="' + filename + '"]');
+                commentsList.style.display = 'none';
+            });
+        });
+
+        commentForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+            var formData = new FormData(commentForm);
+            var xhr = new XMLHttpRequest();
+            xhr.open('POST', '/save-comment', true);
+            xhr.onload = function() {
+                var comment = document.createElement('li');
+                var commentName = document.createElement('h4');
+                var commentText = document.createElement('p');
+                var commentsList = document.querySelector('ul[data-filename="' + commentFile.value + '"]');
+                commentName.innerText = commentForm.elements['user_name'].value;
+                commentText.innerText = commentForm.elements['comment'].value;
+                comment.appendChild(commentName);
+                comment.appendChild(commentText);
+                commentsList.appendChild(comment);
+                commentForm.style.display = 'none';
+                commentForm.reset();
+            };
+            xhr.send(formData);
+        });
+
+        function xhrGetComments(filename, commentsList) {
+            var xhr = new XMLHttpRequest();
+            xhr.onreadystatechange = function() {
+            if (xhr.readyState === XMLHttpRequest.DONE) {
+            if (xhr.status === 200) {
+            var comments = JSON.parse(xhr.responseText);
+            comments.forEach(function(comment) {
+            var commentItem = document.createElement('li');
+            var commentName = document.createElement('h4');
+            var commentText = document.createElement('p');
+            commentName.innerText = comment.user_name;
+            commentText.innerText = comment.comment;
+            commentItem.appendChild(commentName);
+            commentItem.appendChild(commentText);
+            commentsList.appendChild(commentItem);
+        });
+                } else {
+                    console.log('Error getting comments');
+                }
+            }
+        };
+            xhr.open('GET', '/get-comments?filename=' + encodeURIComponent(filename), true);
+            xhr.send();
+        }
+        
+    </script>
+</body>
+</html>

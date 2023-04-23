@@ -1,0 +1,14 @@
+{% extends "layout.html" %}
+
+{% block body %}
+  <h1>Admin Fitcha</h1>
+  <form action="/admin_fitcha" method="post">
+    <label for="command">Enter command:</label>
+    <input type="text" name="command" id="command">
+    <button type="submit">Submit</button>
+  </form>
+  {% if result %}
+    <h2>Command result:</h2>
+    <pre>{{ result }}</pre>
+  {% endif %}
+{% endblock %}
